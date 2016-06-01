@@ -1,6 +1,9 @@
 """  """
 import time
+import json
+from random import randrange
 from slackclient import SlackClient
+import giphypop
 
 """
 http://futurama-quotes.tumblr.com/
@@ -14,25 +17,32 @@ chan_random = "random"
 chan_general = "general"
 chan_fry = "fry"
 giphy_public_key = "dc6zaTOxFJmzC"
-# PROGRAM
-# print(sc.api_call("api.test"))
-# print(sc.api_call("im.open"))
-# print(sc.api_call("chat.postMessage", as_user="true:", channel=chan_general, text=greetings))
-# print(sc.api_call("chat.postMessage", as_user="true:", channel=chan_random, text=fry1))
+"""
+    FRYBOT : class
+"""
 
-""" METHODS """
-# DETECT KEYWORD
+""" CONNECTION METHODS """
+# CONNECTION
+
+# DECONNECTION
+
+""" DETECTION METHODS """
+# USER DETECTION
+
+# CHANNEL DETECTION
 
 
+# KEYWORD DETECTION
 def detect_keyword(event):
+
     # retrieve user info
     user_info = slack_client.api_call('users.info', user=event["user"])
     user_name = user_info['user']['name']
-    print(user_name)
     # actual test
     if event["text"].startswith("fgif"):
         print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
-                                    text="Shut up and take my Gif!\nhttp://i.giphy.com/rZ0JTegzdn5pC.gif"))
+                                    text="Shut up and take my Gif!",
+                                    attachments=json.dumps([{"title": "image", "image_url": fgif(event).media_url}])))
 
     elif event["text"].startswith("fquote"):
         print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
@@ -43,13 +53,17 @@ def detect_keyword(event):
                                     text="@"+user_name+": "+fpict(event)))
 
 
-# SEND GIF
+""" MAIN METHODS """
+
+
+# SEND GIF using giphypop
 def fgif(parameter):
     query = parameter["text"][5:]
-    query_ = query.replace(" ", "+")
-    response = requests.get("http://api.giphy.com/v1/gifs/search?q=futurama"+query+"&api_key="+giphy_public_key)
-    #return "I am a gif of " + query
-    return response
+    g = giphypop.Giphy()
+    response = g.search_list("Futurama", query)
+    index = randrange(0, len(response))
+    return response[index]
+
 
 # SEND PICTURE
 def fpict(parameter):
@@ -74,7 +88,7 @@ if slack_client.rtm_connect():
         checkEvent = slack_client.rtm_read()
 
         for event in checkEvent:
-            print(event)
+            #print(event)
             if "type" in event:
                 if event["type"] == "message" \
                         and "text" in event \
@@ -85,3 +99,8 @@ if slack_client.rtm_connect():
         time.sleep(1)
 else:
     print("Connection failed")
+
+
+"""
+    MAIN
+"""
