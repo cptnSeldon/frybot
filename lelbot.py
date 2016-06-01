@@ -13,7 +13,12 @@ sc = SlackClient(token)
 chan_random = "random"
 chan_general = "general"
 chan_fry = "fry"
-
+giphy_public_key = "dc6zaTOxFJmzC"
+# PROGRAM
+# print(sc.api_call("api.test"))
+# print(sc.api_call("im.open"))
+# print(sc.api_call("chat.postMessage", as_user="true:", channel=chan_general, text=greetings))
+# print(sc.api_call("chat.postMessage", as_user="true:", channel=chan_random, text=fry1))
 
 """ METHODS """
 # DETECT KEYWORD
@@ -26,29 +31,38 @@ def detect_keyword(event):
     print(user_name)
     # actual test
     if event["text"].startswith("fgif"):
-        print(slack_client.api_call("chat.postMessage", as_user="true:", channel=chan_fry, text="@"+user_name+": "+fgif(event)))
+        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
+                                    text="Shut up and take my Gif!\nhttp://i.giphy.com/rZ0JTegzdn5pC.gif"))
+
     elif event["text"].startswith("fquote"):
-        print(slack_client.api_call("chat.postMessage", as_user="true:", channel=chan_fry, text="@"+user_name+": "+fquote(event)))
+        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
+                                    text="@"+user_name+": "+fquote(event)))
+
     elif event["text"].startswith("fpict"):
-        print(slack_client.api_call("chat.postMessage", as_user="true:", channel=chan_fry, text="@"+user_name+": "+fpict(event)))
+        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
+                                    text="@"+user_name+": "+fpict(event)))
 
 
 # SEND GIF
 def fgif(parameter):
-    return "I am a gif of " + parameter["text"][4:]
-
+    query = parameter["text"][5:]
+    query_ = query.replace(" ", "+")
+    response = requests.get("http://api.giphy.com/v1/gifs/search?q=futurama"+query+"&api_key="+giphy_public_key)
+    #return "I am a gif of " + query
+    return response
 
 # SEND PICTURE
 def fpict(parameter):
-    return "I am a picture " + parameter["text"][5:]
+    return "I am a picture " + parameter["text"][6:]
 
 
 # SEND QUOTE
 def fquote(parameter):
-    return "I am a quote " + parameter["text"][5:]
+    return "I am a quote " + parameter["text"][7:]
 
 #test connection
 print(slack_client.api_call("api.test"))
+print(slack_client.api_call("im.open"))
 print(slack_client.api_call("auth.test"))
 
 if slack_client.rtm_connect():
@@ -71,23 +85,3 @@ if slack_client.rtm_connect():
         time.sleep(1)
 else:
     print("Connection failed")
-
-"""
-        ********************************
-         (Philip J.) FRY BOT - Futurama
-        ********************************
-
-What can the bot do :
-
-"""
-
-"""               ___________
-                    METHODS
-                  ___________
-    bot              : https://api.slack.com/bot-users
-    chat.postMessage : https://api.slack.com/methods/chat.postMessage
-                       https://api.slack.com/docs/formatting
-    rtm.start        : https://api.slack.com/methods/rtm.start
-                       https://api.slack.com/rtm
-
-"""
