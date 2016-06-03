@@ -1,106 +1,91 @@
-"""  """
-import time
+"""This is frybot.
+
+A Slack bot that sends Futurama memes and quotes.
+
+Sources:
+http://futurama-quotes.tumblr.com/
+https://en.wikiquote.org/wiki/Futurama
+"""  # Module comment : detailed module explanation.
+
+from time import sleep  # Separate Python stdlib and external imports (PEP8)
 import json
 from random import randrange
+
 from slackclient import SlackClient
 import giphypop
 
-"""
-http://futurama-quotes.tumblr.com/
-https://en.wikiquote.org/wiki/Futurama
-"""
 
-# ATTRIBUTES
-token = "token"
-sc = SlackClient(token)
-chan_random = "random"
-chan_general = "general"
+# change this nex time
+chan_random = "rand"
+chan_general = "gen"
 chan_fry = "fry"
-giphy_public_key = "dc6zaTOxFJmzC"
-"""
-    FRYBOT : class
-"""
-
-""" CONNECTION METHODS """
-# CONNECTION
-
-# DECONNECTION
-
-""" DETECTION METHODS """
-# USER DETECTION
-
-# CHANNEL DETECTION
 
 
-# KEYWORD DETECTION
-def detect_keyword(event):
+class FryBot(object):  # DOCSTRINGS btw triple-double-guote (PEP8) : http://stackoverflow.com/a/9448136/2652657
+    """Bot that sends Futurama's Fry memes and quotes."""
 
-    # retrieve user info
-    user_info = slack_client.api_call('users.info', user=event["user"])
-    user_name = user_info['user']['name']
-    # actual test
-    if event["text"].startswith("fgif"):
-        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
-                                    text="Shut up and take my Gif!",
-                                    attachments=json.dumps([{"title": "image", "image_url": fgif(event).media_url}])))
+    def __init__(self, token):
+        self.giphy = giphypop.Giphy()  # Giphy works with public auth, so we use it as is.
+        self.sc = SlackClient(token)
+        self.channel = chan_fry
 
-    elif event["text"].startswith("fquote"):
-        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
-                                    text="@"+user_name+": "+fquote(event)))
+    def _fgif(self, event, event_username):  # Private methods/function start wt _(PEP8)
+        """Prepare GIF for sending"""
+        query = event["text"][5:]
+        response = self.giphy.search_list("Futurama", query)
+        rand_index = randrange(0, len(response))
+        input = response[rand_index]
+        return self.sc.api_call("chat.postMessage", as_user="true", channel=self.channel,
+                                text="Shut up and take my Gif!",
+                                attachments=json.dumps([{"title": "image",
+                                                         "image_url": input.media_url}]))
 
-    elif event["text"].startswith("fpict"):
-        print(slack_client.api_call("chat.postMessage", as_user="true", channel=chan_fry,
-                                    text="@"+user_name+": "+fpict(event)))
+    def _fpict(self, event, event_username):
+        """Prepare picture URL for sending"""
+        input = "I am a picture " + event["text"][6:]
+        return self.sc.api_call("chat.postMessage", as_user="true", channel=self.channel,
+                                text="@" + event_username + ": " + input)
 
+    def _fquote(self, event, event_username):
+        """Prepare quote for sending"""
+        input = "I am a quote " + event["text"][7:]
+        return self.sc.api_call("chat.postMessage", as_user="true", channel=self.channel,
+                                text="@" + event_username + ": " + input)
 
-""" MAIN METHODS """
+    def _parse(self, event):
+        """Parse user input"""
+        event_username = self.sc.api_call('users.info', user=event["user"])['user']['name']
 
+        if event["text"].startswith("fgif"):
+            msg = self._fgif(event, event_username)
+        elif event["text"].startswith("fquote"):
+            msg = self._fquote(event, event_username)
+        elif event["text"].startswith("fpict"):
+            msg = self._fpict(event, event_username)
+        else:
+            return
+        print(msg)
 
-# SEND GIF using giphypop
-def fgif(parameter):
-    query = parameter["text"][5:]
-    g = giphypop.Giphy()
-    response = g.search_list("Futurama", query)
-    index = randrange(0, len(response))
-    return response[index]
+    def run(self):
+        """Run the bot and treat incoming events"""
+        for test in ["api.test", "im.open", "auth.test"]:  # Super pythonic testing stuff
+            print(self.sc.api_call(test))
 
+            if self.sc.rtm_connect():	
+                print(self.sc.api_call("users.list"))  # to delete
+                while True:  # add try
+                    for event in self.sc.rtm_read():
+                        if "type" in event:
+                            if event["type"] == "message" and "text" in event \
+                                 and "bot_id" not in event and event["channel"] == self.channel:
+                                self._parse(event)
+                    sleep(1)
+            else:
+                raise RuntimeError("Connection failed to Slack platform...")
 
-# SEND PICTURE
-def fpict(parameter):
-    return "I am a picture " + parameter["text"][6:]
-
-
-# SEND QUOTE
-def fquote(parameter):
-    return "I am a quote " + parameter["text"][7:]
-
-#test connection
-print(slack_client.api_call("api.test"))
-print(slack_client.api_call("im.open"))
-print(slack_client.api_call("auth.test"))
-
-if slack_client.rtm_connect():
-
-    print(slack_client.api_call("users.list"))
-
-    while True:
-
-        checkEvent = slack_client.rtm_read()
-
-        for event in checkEvent:
-            #print(event)
-            if "type" in event:
-                if event["type"] == "message" \
-                        and "text" in event \
-                        and "bot_id" not in event \
-                        and event["channel"] == chan_fry:
-                    message = event["text"]
-                    detect_keyword(event)
-        time.sleep(1)
-else:
-    print("Connection failed")
-
-
-"""
-    MAIN
-"""
+if __name__ == '__main__':  # behavior "by default" when exec
+    fb = FryBot("token")
+    try:
+        fb.run()
+    except KeyboardInterrupt:  # ctrl-c
+        print("Bye guyz, I'm out...")
