@@ -1,4 +1,5 @@
-"""Image searching function"""
+"""Image searching function
+used to search and send random images to slack channel"""
 import json
 from random import randrange
 
@@ -9,6 +10,10 @@ from bot.debug import print_debug
 
 
 def search_image(input):
+    """
+    search_image function
+    :param: input
+    :return: result url """
     try:
         # search engine initialization
         searchTerm = "Futurama "+input
@@ -27,7 +32,7 @@ def search_image(input):
         url = result["items"][rand_index]["link"]
 
         print_debug(url)
-        return result[url]
+        return url
 
     except Exception as e:
         print(e)

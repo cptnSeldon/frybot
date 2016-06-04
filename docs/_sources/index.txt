@@ -1,0 +1,29 @@
+.. Frybot documentation master file, created by
+   sphinx-quickstart on Sat Jun  4 09:52:25 2016.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Frybot's documentation!
+==================================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+.. automodule:: bot.frybot
+	:members:
+.. automodule:: bot.image_search
+	:members:	
+.. automodule:: bot.debug
+	:members:
+.. automodule:: conf.config
+	:members:
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

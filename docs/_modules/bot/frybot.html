@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>bot.frybot &mdash; Frybot 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Frybot 1.0.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for bot.frybot</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;This is frybot.</span>
+
+<span class="sd">A Slack bot that sends Futurama memes and quotes.</span>
+
+<span class="sd">Sources:</span>
+<span class="sd">https://github.com/shaunduncan/giphypop</span>
+<span class="sd">https://en.wikiquote.org/wiki/Futurama</span>
+<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># Module comment : detailed module explanation.</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randrange</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>  <span class="c1"># Separate Python stdlib and external imports (PEP8)</span>
+
+<span class="kn">import</span> <span class="nn">giphypop</span>
+<span class="kn">from</span> <span class="nn">slackclient</span> <span class="kn">import</span> <span class="n">SlackClient</span>
+
+<span class="kn">from</span> <span class="nn">conf.config</span> <span class="kn">import</span> <span class="n">TOKEN</span><span class="p">,</span> <span class="n">DEBUG</span>
+<span class="kn">from</span> <span class="nn">bot.debug</span> <span class="kn">import</span> <span class="n">print_debug</span>
+<span class="kn">from</span> <span class="nn">bot</span> <span class="kn">import</span> <span class="n">image_search</span>
+
+
+<div class="viewcode-block" id="FryBot"><a class="viewcode-back" href="../../index.html#bot.frybot.FryBot">[docs]</a><span class="k">class</span> <span class="nc">FryBot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>  <span class="c1"># DOCSTRINGS btw triple-double-guote (PEP8) : http://stackoverflow.com/a/9448136/2652657</span>
+    <span class="sd">&quot;&quot;&quot;Bot that sends Futurama&#39;s Fry memes and quotes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:param: token&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">giphy</span> <span class="o">=</span> <span class="n">giphypop</span><span class="o">.</span><span class="n">Giphy</span><span class="p">()</span>  <span class="c1"># Giphy works with public auth, so we use it as is.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sc</span> <span class="o">=</span> <span class="n">SlackClient</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quote_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Farnsworth: My God! I&#39;ve got to save them! &quot;</span>
+                           <span class="s2">&quot;Although I am already in my pajamas. [falls asleep]&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;Bender: Bite my shiny metal ass.</span><span class="se">\n</span><span class="s2">Fry: It doesn&#39;t look so shiny to me.&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;Prof. Farnsworth: Please, Fry. I don&#39;t know how to teach. I&#39;m a professor.&quot;</span>
+                           <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_fgif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">):</span>  <span class="c1"># Private methods/functions start with _(PEP8)</span>
+        <span class="sd">&quot;&quot;&quot;Prepare GIF for sending</span>
+<span class="sd">        :param: event</span>
+<span class="sd">        :param: event_name</span>
+<span class="sd">        :param: user_channel</span>
+<span class="sd">        :return: media url&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">][</span><span class="mi">5</span><span class="p">:]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">giphy</span><span class="o">.</span><span class="n">search_list</span><span class="p">(</span><span class="s2">&quot;Futurama&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">rand_index</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="n">rand_index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s2">&quot;chat.postMessage&quot;</span><span class="p">,</span> <span class="n">as_user</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">user_channel</span><span class="p">,</span>
+                                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&lt;@{0}&gt; {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event_username</span><span class="p">,</span> <span class="s2">&quot;Shut up and take my Gif!&quot;</span><span class="p">),</span>
+                                <span class="n">attachments</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
+                                                         <span class="s2">&quot;image_url&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="o">.</span><span class="n">media_url</span><span class="p">}]))</span>
+
+    <span class="k">def</span> <span class="nf">_fpict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare picture URL for sending</span>
+<span class="sd">        :param: event</span>
+<span class="sd">        :param: event_name</span>
+<span class="sd">        :param: user_channel</span>
+<span class="sd">        :return: image url&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;fpict&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">6</span>
+        <span class="n">search_word</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">][</span><span class="n">value</span><span class="p">:]</span>
+        <span class="n">print_debug</span><span class="p">(</span><span class="n">search_word</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s2">&quot;chat.postMessage&quot;</span><span class="p">,</span> <span class="n">as_user</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">user_channel</span><span class="p">,</span>
+                                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&lt;@{0}&gt; {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event_username</span><span class="p">,</span> <span class="s2">&quot;Shut up and take my Pict!&quot;</span><span class="p">),</span>
+                                <span class="n">attachments</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
+                                                         <span class="s2">&quot;image_url&quot;</span><span class="p">:</span> <span class="n">image_search</span><span class="o">.</span><span class="n">search_image</span><span class="p">(</span><span class="n">search_word</span><span class="p">)}])</span>
+                                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fquote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare quote for sending</span>
+<span class="sd">        :param: event</span>
+<span class="sd">        :param: event_name</span>
+<span class="sd">        :param: user_channel</span>
+<span class="sd">        :return: quote&quot;&quot;&quot;</span>
+        <span class="n">rand_index</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quote_list</span><span class="p">))</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quote_list</span><span class="p">[</span><span class="n">rand_index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s2">&quot;chat.postMessage&quot;</span><span class="p">,</span> <span class="n">as_user</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">user_channel</span><span class="p">,</span>
+                                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&lt;@{0}&gt; {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event_username</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span>
+                                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Displays the help message to the channel</span>
+<span class="sd">        :return: help text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Not sure if need help or just lost..</span><span class="se">\n</span><span class="s2">&quot;</span> \
+               <span class="s2">&quot;This bot is dedicated to Futurama, hell yeah you can have some fun</span><span class="se">\n</span><span class="s2">&quot;</span> \
+               <span class="s2">&quot; - fquote : sends you a random quote </span><span class="se">\n</span><span class="s2">&quot;</span> \
+               <span class="s2">&quot; - fgif : sends you a random gif </span><span class="se">\n</span><span class="s2">&quot;</span> \
+               <span class="s2">&quot; - fpict : sends you a random pict </span><span class="se">\n</span><span class="s2">&quot;</span> \
+               <span class="s2">&quot; - help :  hehehe</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse user input</span>
+<span class="sd">        :param: event</span>
+<span class="sd">        :return: help message if command not found&quot;&quot;&quot;</span>
+        <span class="n">event_username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s1">&#39;users.info&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">])[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">user_channel</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;fgif&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fgif</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;fquote&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fquote</span><span class="p">(</span><span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;fpict&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fpict</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">event_username</span><span class="p">,</span> <span class="n">user_channel</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s2">&quot;chat.postMessage&quot;</span><span class="p">,</span> <span class="n">as_user</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">user_channel</span><span class="p">,</span>
+                             <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_help</span><span class="p">())</span>
+
+<div class="viewcode-block" id="FryBot.run"><a class="viewcode-back" href="../../index.html#bot.frybot.FryBot.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the bot and treat incoming events</span>
+<span class="sd">        :except_ InterruptError</span>
+<span class="sd">        :raise: RuntimeError&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;api.test&quot;</span><span class="p">,</span> <span class="s2">&quot;im.open&quot;</span><span class="p">,</span> <span class="s2">&quot;auth.test&quot;</span><span class="p">]:</span>  <span class="c1"># Super pythonic testing stuff</span>
+            <span class="n">print_debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="n">test</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">rtm_connect</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span><span class="s2">&quot;auth.test&quot;</span><span class="p">)[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc</span><span class="o">.</span><span class="n">rtm_read</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;message&quot;</span> <span class="ow">and</span> <span class="s2">&quot;text&quot;</span> <span class="ow">in</span> <span class="n">event</span> \
+                                     <span class="ow">and</span> <span class="s2">&quot;bot_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&lt;@&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">user_id</span><span class="o">+</span><span class="s2">&quot;&gt;:&quot;</span><span class="p">):</span>
+                                    <span class="n">print_debug</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+                        <span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">InterruptedError</span><span class="p">:</span>
+                        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Something went wrong there..&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Connection failed to Slack platform...&quot;</span><span class="p">)</span>
+
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c1"># behavior &quot;by default&quot; when exec</span>
+    <span class="n">fb</span> <span class="o">=</span> <span class="n">FryBot</span><span class="p">(</span><span class="n">TOKEN</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">set_debug</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">fb</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>  <span class="c1"># ctrl-c</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Bye guyz, I&#39;m out...&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, cptnSeldon.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

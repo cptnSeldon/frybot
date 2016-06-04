@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Frybot’s documentation! &mdash; Frybot 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Frybot 1.0.0 documentation" href="#" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-frybot-s-documentation">
+<h1>Welcome to Frybot&#8217;s documentation!<a class="headerlink" href="#welcome-to-frybot-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-bot.frybot"></span><p>This is frybot.</p>
+<p>A Slack bot that sends Futurama memes and quotes.</p>
+<p>Sources:
+<a class="reference external" href="https://github.com/shaunduncan/giphypop">https://github.com/shaunduncan/giphypop</a>
+<a class="reference external" href="https://en.wikiquote.org/wiki/Futurama">https://en.wikiquote.org/wiki/Futurama</a></p>
+<dl class="class">
+<dt id="bot.frybot.FryBot">
+<em class="property">class </em><code class="descclassname">bot.frybot.</code><code class="descname">FryBot</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bot/frybot.html#FryBot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot.frybot.FryBot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bot that sends Futurama&#8217;s Fry memes and quotes.</p>
+<dl class="method">
+<dt id="bot.frybot.FryBot.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bot/frybot.html#FryBot.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot.frybot.FryBot.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the bot and treat incoming events
+:<a href="#id1"><span class="problematic" id="id2">except_</span></a> InterruptError
+:raise: RuntimeError</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-bot.image_search"></span><p>Image searching function
+used to search and send random images to slack channel</p>
+<dl class="function">
+<dt id="bot.image_search.search_image">
+<code class="descclassname">bot.image_search.</code><code class="descname">search_image</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bot/image_search.html#search_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot.image_search.search_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>search_image function
+:param: input
+:return: result url</p>
+</dd></dl>
+
+<span class="target" id="module-bot.debug"></span><p>Debug file
+prints system messages in console for debug purposes</p>
+<dl class="function">
+<dt id="bot.debug.print_debug">
+<code class="descclassname">bot.debug.</code><code class="descname">print_debug</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bot/debug.html#print_debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot.debug.print_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>debug function
+:param: message
+:return:</p>
+</dd></dl>
+
+<span class="target" id="module-conf.config"></span><p>Configuration file
+contains : DEBUG, TOKEN (slack), USER (google image), KEY (google image)
+set DEBUG to False if in release mode</p>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Frybot&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, cptnSeldon.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
