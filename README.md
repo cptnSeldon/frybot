@@ -29,7 +29,7 @@ __OR__
 
 You can download it from the command prompt (as it is on Pypi and the token has been kept \* ) :
 ```
-pip install frybot
+> pip install frybot
 ```
 ## Installation
 
