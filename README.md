@@ -21,7 +21,7 @@ This is a Slack bot made in Python for the Python course @HE-ARC, based on Matt 
 @frybot: fpict [arg]
 ```
 
-## Installation
+## Download
 
 You can download it directly from here, but the file doesn't contain the Slack token nor the Google API key (config.py).
 
@@ -30,6 +30,19 @@ __OR__
 You can download it from the command prompt (as it is on Pypi and the token has been kept \* ) :
 ```
 pip install frybot
+```
+## Installation
+
+You have to create a virtual environment like this : 
+```
+	> python -m venv frybot
+	> cd frybot
+	> C:\path_to_file\frybot\Scripts\activate.bat
+```
+
+put your newly downloaded bot files here and a this is ok, you can launch the bot with run.bat like this :
+```
+	> C:\path_to_file\frybot\run.bat
 ```
 
 ## Documentation
