@@ -45,6 +45,17 @@ put your newly downloaded bot files here and a this is ok, you can launch the bo
 	> C:\path_to_file\frybot\run.bat
 ```
 
+and if you cannot find the run.bat, all you have to do is : 
+
+- create a new file you will name 'run.bat' in the frybot directory
+- open it with a notepad
+- and write this in it :
+
+```
+cd bot
+python frybot.py
+```
+
 ## Documentation
 
 You can see the Sphinx documentation here : 
