@@ -64,6 +64,12 @@ You can see the Sphinx documentation here :
 
 althought I am still trying to figure out how to make this site understand where my doc is...
 
+__BUT__
+
+Here you can find what should be shown in the link above :
+
+- [Frybot on Pypi](https://pythonhosted.org/Frybot/)
+
 \* up from Saturday the 4th of June 2016, from early to later in the the morning
 
 ## Misc information
