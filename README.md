@@ -60,17 +60,13 @@ python frybot.py
 
 You can see the Sphinx documentation here : 
 
-- [Frybot on ReadTheDocs.com] (frybot-100.rtfd.io) \*
-
-althought I am still trying to figure out how to make this site understand where my doc is...
-
-__BUT__
-
-Here you can find what should be shown in the link above :
-
 - [Frybot on Pypi](https://pythonhosted.org/Frybot/)
 
-\* up from Saturday the 4th of June 2016, from early to later in the the morning
+__AND__
+
+the presentation's slides here :
+
+-[Frybot 1.0.0 : Google Slides ]https://docs.google.com/presentation/d/11Q3YKVWSmejfARv8pe0145vUkazRgnUUCuXEkOQKUsY/edit?usp=sharing()
 
 ## Misc information
 
