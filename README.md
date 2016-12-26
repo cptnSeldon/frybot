@@ -66,7 +66,7 @@ __AND__
 
 the presentation's slides here :
 
--[Frybot 1.0.0 : Google Slides ]https://docs.google.com/presentation/d/11Q3YKVWSmejfARv8pe0145vUkazRgnUUCuXEkOQKUsY/edit?usp=sharing()
+- [Frybot 1.0.0 : Google Slides ](https://docs.google.com/presentation/d/11Q3YKVWSmejfARv8pe0145vUkazRgnUUCuXEkOQKUsY/edit?usp=sharing)
 
 ## Misc information
 
